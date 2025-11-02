@@ -55,6 +55,26 @@ body {
   margin-top: auto;
 }
 
+.location-info {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 0.5rem;
+}
+
+.location-info .mdi {
+  font-size: 1.1rem;
+  vertical-align: middle;
+  margin-right: 0.3rem;
+}
+
+.coordinates {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.coordinates .mdi {
+  font-size: 0.9rem;
+}
+
 .weather-icon {
   font-size: 1.5rem;
   margin-right: 0.5rem;

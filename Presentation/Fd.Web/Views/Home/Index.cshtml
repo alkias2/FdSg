@@ -13,6 +13,28 @@
                     <img src="images/@c.Image" class="card-img-top catch-image" alt="Σύλληψη" 
                          onclick="showImage('images/@c.Image')" />
                     <div class="card-body">
+                        <div class="location-info mb-3">
+                            <h5 class="card-title mb-2">
+                                <i class="mdi mdi-map-marker text-danger"></i>
+                                @(c.LocationName ?? "Άγνωστη τοποθεσία")
+                            </h5>
+                            @if (!string.IsNullOrEmpty(c.District))
+                            {
+                                <p class="text-muted mb-0">
+                                    <small>@c.District</small>
+                                </p>
+                            }
+                            @if (c.Latitude.HasValue && c.Longitude.HasValue)
+                            {
+                                <p class="coordinates text-muted mb-0">
+                                    <small>
+                                        <i class="mdi mdi-crosshairs-gps"></i>
+                                        @c.Latitude.Value.ToString("F6")°, @c.Longitude.Value.ToString("F6")°
+                                    </small>
+                                </p>
+                            }
+                        </div>
+                        
                         <h5 class="card-title">@c.FishTime.ToString("d MMMM yyyy")</h5>
                         <p class="card-text">@c.FishTime.ToString("HH:mm")</p>
                         

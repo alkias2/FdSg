@@ -93,12 +93,17 @@ namespace Fd.Web.Controllers {
 
 			foreach (var catche in catcheDates) {
 				var solunar = SolunarByDay(catche);
+				var location = locs; // Currently using the same location for all catches
 				catches.Add(new CatcheModel {
 					FishTime = catche,
 					Solunar = solunar,
 					Tide = TideByDay(catche),
 					Whether = WhetherByDay(catche),
-					MoonPhase = solunar?.MoonFraction
+					MoonPhase = solunar?.MoonFraction,
+					LocationName = location?.Name,
+					District = location?.District,
+					Latitude = location?.Lat,
+					Longitude = location?.Lng
 				});
 			}
 
