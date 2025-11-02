@@ -1,31 +1,14 @@
-﻿using System.Net;
-using Fd.Core;
+﻿using Fd.Core;
+using Fd.Data;
 using Fd.Data.Domain;
 using Fd.Data.Domain.StormGlass;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace Fd.Data.StormGlass
+namespace Fd.Services.StormGlass
 {
-	public static class UnixDates
-	{
-
-		public static string SetDate(int dates) {
-			var start = DateTime.UtcNow.Date;
-			return  start.AddDays(dates).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-		}
-
-	}
-
-	public interface IStormGlassData
-	{
-	
-		SolunarDeserialize? GetSolunar(string timeStart, string timeEnd, Location? location);
-		DeserializeTide? GetTides(string timeStart, string timeEnd, Location? location);
-		DeserializeWeather? GetWeather(string timeStart, string timeEnd, Location? location);
-	}
-
-	public class StormGlassData : IStormGlassData
+    public class StormGlassService : IStormGlassService
 	{
 		//private const string AUTHORIZATION = "4e744e10-73f9-11ed-a654-0242ac130002-4e744e88-73f9-11ed-a654-0242ac130002"; //ftcalkias@gmail.com
 		private const string AUTHORIZATION = "6703f5c2-7181-11ed-bce5-0242ac130002-6703f644-7181-11ed-bce5-0242ac130002"; //mamisma79@gmail.com
@@ -33,12 +16,12 @@ namespace Fd.Data.StormGlass
 
 
 		private const string SGURL = "https://api.stormglass.io/v2/";
-		private ILogger<StormGlassData> _logger;
-		private DataContext _context;
+		private readonly ILogger<StormGlassService> _logger;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 
-		public StormGlassData(ILogger<StormGlassData> logger, DataContext context) {
+		public StormGlassService(ILogger<StormGlassService> logger, IServiceScopeFactory serviceScopeFactory) {
 			_logger = logger;
-			_context = context;
+			_serviceScopeFactory = serviceScopeFactory;
 		}
 
 		public DeserializeWeather? GetWeather(string timeStart, string timeEnd, Location? location) {
@@ -69,20 +52,23 @@ namespace Fd.Data.StormGlass
 			var weatherToken =
 				$"{SGURL}weather/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&params={string.Join(",",parameters)}&start={timeStart}&end={timeEnd}";
 
-			//return null;
-
 			var response = GetFromStormGlass(weatherToken);
 			if (response != string.Empty) {
 				DeserializeWeather? weather = JsonConvert.DeserializeObject<DeserializeWeather>(response);
-				_context.SgData.Add(new SgData
+				
+				using (var scope = _serviceScopeFactory.CreateScope())
 				{
-					StartTime = timeStart.UnixToDtDateTime(),
-					EndTime = timeEnd.UnixToDtDateTime(),
-					Name = "Whether",
-					RowData = response,
-					LocationId = location.Id,
-				});
-				_context.SaveChanges();
+					var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+					context.SgData.Add(new SgData
+					{
+						StartTime = timeStart.UnixToDtDateTime(),
+						EndTime = timeEnd.UnixToDtDateTime(),
+						Name = "Whether",
+						RowData = response,
+						LocationId = location.Id,
+					});
+					context.SaveChanges();
+				}
 				return weather;
 			}
 			return null;
@@ -99,15 +85,19 @@ namespace Fd.Data.StormGlass
 			if (response != string.Empty) {
 				SolunarDeserialize? solunar = JsonConvert.DeserializeObject<SolunarDeserialize>(response);
 
-				_context.SgData.Add(new SgData
+				using (var scope = _serviceScopeFactory.CreateScope())
 				{
-					StartTime = timeStart.UnixToDtDateTime(),
-					EndTime = timeEnd.UnixToDtDateTime(),
-					Name = "Astronomy",
-					RowData = response,
-					LocationId = location.Id,
-				});
-				_context.SaveChanges();
+					var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+					context.SgData.Add(new SgData
+					{
+						StartTime = timeStart.UnixToDtDateTime(),
+						EndTime = timeEnd.UnixToDtDateTime(),
+						Name = "Astronomy",
+						RowData = response,
+						LocationId = location.Id,
+					});
+					context.SaveChanges();
+				}
 
 				return solunar;
 			}
@@ -121,27 +111,22 @@ namespace Fd.Data.StormGlass
 			var tidesToken = $"{SGURL}tide/extremes/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&start={timeStart}&end={timeEnd}";
 			var response = GetFromStormGlass(tidesToken);
 
-			//        var getTideFromDb = _context.SgData.Where(t => 
-			//            t.StartTime == timeStart.UnixToDtDateTime()
-			//            && t.Name == "Tide"
-			//&& t.EndTime == timeEnd.UnixToDtDateTime())
-			//            .OrderBy(t=>t.Id).ToList()
-			//            .LastOrDefault();
-
-			//        var response = getTideFromDb?.RowData;
-
 			if (response != string.Empty) {
 				DeserializeTide? dataTide = JsonConvert.DeserializeObject<DeserializeTide>(response);
 
-				_context.SgData.Add(new SgData
+				using (var scope = _serviceScopeFactory.CreateScope())
 				{
-					StartTime = timeStart.UnixToDtDateTime(),
-					EndTime = timeEnd.UnixToDtDateTime(),
-					Name = "tide",
-					RowData = response,
-					LocationId = location.Id,
-				});
-				_context.SaveChanges();
+					var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+					context.SgData.Add(new SgData
+					{
+						StartTime = timeStart.UnixToDtDateTime(),
+						EndTime = timeEnd.UnixToDtDateTime(),
+						Name = "tide",
+						RowData = response,
+						LocationId = location.Id,
+					});
+					context.SaveChanges();
+				}
 
 				return dataTide;
 			}
@@ -174,21 +159,5 @@ namespace Fd.Data.StormGlass
 			
 		}
 
-		private static string GetFromStormGlassD(string token) {
-			WebRequest request = WebRequest.Create(token);
-
-			request.Method = "GET";
-			request.Timeout = 24000;
-			request.ContentType = "application/json";
-			request.Headers.Add("Authorization", AUTHORIZATION);
-
-			Stream sw = request.GetResponse().GetResponseStream();
-
-			StreamReader swr = new StreamReader(sw);
-			var response = swr.ReadToEnd();
-
-			return response;
-		}
-
-	}
+    }
 }
