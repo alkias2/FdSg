@@ -3,12 +3,12 @@ using Fd.Core.Infrastructure;
 using Fd.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Fd.Data.StormGlass;
+using Fd.Services.StormGlass;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //builder.Services.AddScoped<ITypeFinder, AppDomainTypeFinder>();
-builder.Services.AddScoped<IStormGlassData, StormGlassData>();
+builder.Services.AddScoped<IStormGlassService, StormGlassService>();
 
 var connectionString = builder.Configuration["ConnectionStrings:DbConnection"];
 

@@ -16,3 +16,124 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.catch-card {
+  transition: transform 0.3s ease;
+}
+
+.catch-card:hover {
+  transform: scale(1.02);
+}
+
+.catch-image {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.catch-image:hover {
+  transform: scale(1.05);
+}
+
+/* Card container για σταθερό ύψος */
+.catch-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.catch-card .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-stats {
+  margin-top: auto;
+}
+
+.location-info {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 0.5rem;
+}
+
+.location-info .mdi {
+  font-size: 1.1rem;
+  vertical-align: middle;
+  margin-right: 0.3rem;
+}
+
+.coordinates {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.coordinates .mdi {
+  font-size: 0.9rem;
+}
+
+.weather-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.weather-stats {
+  font-size: 0.9rem;
+}
+
+/* Material Design Icons styling */
+.mdi {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Moon phase icon colors */
+.mdi[class*="mdi-moon"] {
+  color: #ffd700;  /* Golden color for moon icons */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.wind-direction {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* Modal styles */
+.img-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.9);
+}
+
+.modal-content {
+  margin: auto;
+  display: block;
+  max-width: 90%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+}
+
+.close {
+  position: absolute;
+  right: 35px;
+  top: 15px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
